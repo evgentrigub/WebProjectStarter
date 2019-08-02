@@ -27,17 +27,17 @@ namespace API.Controllers
 
         private IUserService _userService;
         private IMapper _mapper;
-        //private AppSettings _appSettings;
+        private AppSettings _appSettings;
 
         public UsersController(
             IUserService userService,
-            IMapper mapper
-            //IOptions<AppSettings> appSettings
+            IMapper mapper,
+            IOptions<AppSettings> appSettings
             )
         {
             _userService = userService;
             _mapper = mapper;
-            //_appSettings = appSettings.Value;
+            _appSettings = appSettings.Value;
         }
 
         [AllowAnonymous]
@@ -48,7 +48,7 @@ namespace API.Controllers
             {
                 var user = _userService.Authenticate(userDto.Username, userDto.Password);
                 var tokenHandler = new JwtSecurityTokenHandler();
-                //var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
@@ -56,7 +56,7 @@ namespace API.Controllers
                         new Claim(ClaimTypes.Name, user.Id.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(1),
-                    //SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenToSend = tokenHandler.WriteToken(token);
@@ -105,8 +105,8 @@ namespace API.Controllers
         public IActionResult Get(int id)
         {
             var user = _userService.GetById(id);
-            var userViewModel = _mapper.Map<IList<UserViewModel>>(user);
-            return Ok(user);
+            var userViewModel = _mapper.Map<UserViewModel>(user);
+            return Ok(userViewModel);
         }
 
         [HttpPut("{id}")]

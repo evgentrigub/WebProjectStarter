@@ -4,14 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Models;
+using API.Models.ViewModels;
 using AutoMapper;
 
 namespace API.Helpers
 {
-    //public class AppSettings
-    //{
-    //    public string Secret { get; set; }
-    //}
+    public class AppSettings
+    {
+        public string Secret { get; set; }
+    }
 
     public class AppException : Exception
     {
@@ -24,6 +25,8 @@ namespace API.Helpers
         {
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
+            CreateMap<User, UserViewModel>();
+            CreateMap<UserViewModel, User>();
         }
     }
 }
