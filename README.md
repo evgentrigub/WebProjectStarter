@@ -1,2 +1,1 @@
-# TestProject
-портал для оценки компетенций по технологиям.
+# WebProjectTemplate
