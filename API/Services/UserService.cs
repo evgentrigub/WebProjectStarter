@@ -18,21 +18,15 @@ namespace API.Services
 
         public User Authenticate(string username, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return null;
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                throw new AppException("Username or password is empty");
+
             var user = _context.Users.SingleOrDefault(x => x.Username == username);
-            if (user == null) return null;
+            if (user == null) 
+                throw new AppException("User not found. Username or password is incorrect");
+
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt)) return null;
             return user;
-        }
-
-        public IEnumerable<User> GetAll()
-        {
-            return _context.Users;
-        }
-
-        public User GetById(int id)
-        {
-            return _context.Users.Find(id);
         }
 
         public User Create(User user, string password)
@@ -52,6 +46,16 @@ namespace API.Services
             _context.SaveChanges();
 
             return user;
+        }
+
+        public IEnumerable<User> GetAll()
+        {
+            return _context.Users;
+        }
+
+        public User GetById(int id)
+        {
+            return _context.Users.Find(id);
         }
 
         public void Update(User newUser, string password = null)
