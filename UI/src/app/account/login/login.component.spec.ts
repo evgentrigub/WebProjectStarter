@@ -2,7 +2,14 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, MatInputModule } from '@angular/material';
+import {
+  MatFormFieldModule,
+  MatIconModule,
+  MatButtonModule,
+  MatProgressSpinnerModule,
+  MatSnackBarModule,
+  MatInputModule,
+} from '@angular/material';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -24,8 +31,8 @@ describe('LoginComponent', () => {
         MatButtonModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
-        MatInputModule
-      ]
+        MatInputModule,
+      ],
     }).compileComponents();
   }));
 

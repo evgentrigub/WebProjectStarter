@@ -5,7 +5,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, MatInputModule } from '@angular/material';
+import {
+  MatFormFieldModule,
+  MatIconModule,
+  MatButtonModule,
+  MatProgressSpinnerModule,
+  MatSnackBarModule,
+  MatInputModule,
+} from '@angular/material';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -24,8 +31,8 @@ describe('RegisterComponent', () => {
         MatButtonModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
-        MatInputModule
-      ]
+        MatInputModule,
+      ],
     }).compileComponents();
   }));
 
