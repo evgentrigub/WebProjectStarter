@@ -14,10 +14,19 @@ import { ErrorInterceptor } from './account/error.interceptor';
 import { MaterialModule } from './material-module';
 import { appRoutingModule } from './app.routing';
 import 'hammerjs';
+import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, LoginComponent, RegisterComponent],
-  imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ReactiveFormsModule, MaterialModule, appRoutingModule, HttpClientModule],
+  declarations: [AppComponent, HomeComponent, LoginComponent, RegisterComponent, NavBarComponent],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    appRoutingModule,
+    HttpClientModule,
+  ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

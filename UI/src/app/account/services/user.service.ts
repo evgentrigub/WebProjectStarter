@@ -11,7 +11,7 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getAll() {
-    return this.http.get<User[]>(`${environment.apiUrl}/users`);
+    return this.http.get<User[]>(`${environment.apiUrl}/users/getall`);
   }
 
   getById(id: number) {
@@ -24,10 +24,6 @@ export class UserService {
 
   update(user: User) {
     return this.http.put(`${environment.apiUrl}/users/${user.id}`, user);
-  }
-
-  updateAccount(user: User): Observable<User> {
-    return this.http.put<User>(`${environment.apiUrl}/users/addMoney/${user.id}`, user);
   }
 
   delete(id: number) {

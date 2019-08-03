@@ -19,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("[controller]/[action]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -61,7 +61,7 @@ namespace API.Controllers
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenToSend = tokenHandler.WriteToken(token);
 
-                return Ok(new UserViewModel()
+                return Ok(new UserAuthenticateModel()
                 {
                     Id = user.Id,
                     Username = user.Username,

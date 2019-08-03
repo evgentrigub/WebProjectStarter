@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
     private snackbar: MatSnackBar
   ) {
     if (this.authenticationService.currentUserValue) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/home']);
     }
   }
 
@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required],
     });
 
-    this.returnUrl = this.route.snapshot.queryParams.returnUrl || 'dashboard';
+    this.returnUrl = this.route.snapshot.queryParams.returnUrl || 'home';
   }
 
   get f() {
