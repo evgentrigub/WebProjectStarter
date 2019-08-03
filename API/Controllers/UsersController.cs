@@ -19,8 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
-    [Authorize]
-    [Route("[controller]")]
+    //[Authorize]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -42,7 +42,7 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Authenticate([FromBody]UserDto userDto)
+        public IActionResult Authenticate([FromBody] UserDto userDto)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new {message = e.Message});
+                return BadRequest(new { message = e.Message });
             }
         }
 
@@ -89,7 +89,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new {message = e.Message});
+                return BadRequest(new { message = e.Message });
             }
         }
 
@@ -121,7 +121,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new {message = e.Message});
+                return BadRequest(new { message = e.Message });
             }
         }
 
