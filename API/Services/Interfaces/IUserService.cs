@@ -8,7 +8,7 @@ using Project.Core.Abstractions.Services;
 
 namespace API.Services.Interfaces
 {
-    public interface IUserService: IBaseRepository<User>
+    public interface IUserService : IBaseRepository<User>
     {
         /// <summary>
         ///     Authenticate user with username and password

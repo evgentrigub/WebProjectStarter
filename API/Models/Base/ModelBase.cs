@@ -1,11 +1,12 @@
 ﻿using System;
 using API.Core.Abstractions.Models;
+using Project.Core.Abstractions.Models;
 
 namespace API.Models.Base
 {
     public abstract class ModelBase : IModelBase
     {
-        public ModelBase()
+        protected ModelBase()
         {
             Id = Guid.NewGuid().ToString();
             IsActive = true;

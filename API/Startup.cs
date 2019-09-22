@@ -4,14 +4,14 @@ using API.Helpers;
 using API.Models;
 using API.Services;
 using API.Services.Interfaces;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Project.Core.Abstractions.Services;
@@ -34,7 +34,7 @@ namespace API
             //    x => x.UseSqlServer(Configuration.GetConnectionString("DefaultString")));
             services.AddDbContext<DataContext>(x => x.UseInMemoryDatabase("TestDb"));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            
+
             services.AddAutoMapper();
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -51,7 +51,8 @@ namespace API
                 {
                     OnTokenValidated = context =>
                     {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IBaseRepository<User>>();
+                        var userService =
+                            context.HttpContext.RequestServices.GetRequiredService<IBaseRepository<User>>();
                         var userId = context.Principal.Identity.Name;
                         var user = userService.FindById(userId);
                         if (user == null) context.Fail("Unauthorized");
@@ -74,7 +75,8 @@ namespace API
             services.AddScoped<IUserService, UserService>();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Description = "Universal Web Project", Version = "v1" });
+                c.SwaggerDoc("v1",
+                    new OpenApiInfo {Title = "My API", Description = "Universal Web Project", Version = "v1"});
             });
         }
 
@@ -103,6 +105,7 @@ namespace API
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+
             app.UseMvc();
         }
     }

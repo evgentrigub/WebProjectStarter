@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using API.Core.Abstractions.Models;
@@ -18,15 +19,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services
 {
-    public class UserService: BaseRepository<User>, IUserService
+    public class UserService : BaseRepository<User>, IUserService
     {
-        private DataContext _context;
-        private AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
+        private readonly DataContext _context;
 
         public UserService(
             DataContext context,
             IOptions<AppSettings> appSettings
-            ) : base(context)
+        ) : base(context)
         {
             _context = context;
             _appSettings = appSettings.Value;
@@ -159,30 +160,30 @@ namespace API.Services
 
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            if(password == null) throw new ArgumentNullException("password");
-            if(string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value is empty", "password");
+            if (password == null) throw new ArgumentNullException("password");
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value is empty", "password");
 
-            var hmac = new System.Security.Cryptography.HMACSHA512();
+            var hmac = new HMACSHA512();
             passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         }
 
         private static bool VerifyPasswordHash(string password, byte[] localHash, byte[] localSalt)
         {
             if (password == null) throw new ArgumentNullException("password");
             if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value is empty", "password");
-            if (localHash.Length != 64) throw new ArgumentException("Invalid length. Password hash expected 64 bytes.", "passwordHash");
-            if (localSalt.Length != 128) throw new ArgumentException("Invalid length. Password salt expected 128 bytes.", "passwordHash");
+            if (localHash.Length != 64)
+                throw new ArgumentException("Invalid length. Password hash expected 64 bytes.", "passwordHash");
+            if (localSalt.Length != 128)
+                throw new ArgumentException("Invalid length. Password salt expected 128 bytes.", "passwordHash");
 
-            var hmac = new System.Security.Cryptography.HMACSHA512(localSalt);
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            for (int i = 0; i < computedHash.Length; i++)
-            {
-                if (computedHash[i] != localHash[i]) return false;
-            }
+            var hmac = new HMACSHA512(localSalt);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            for (var i = 0; i < computedHash.Length; i++)
+                if (computedHash[i] != localHash[i])
+                    return false;
 
             return true;
         }
-
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace API.Core.Abstractions.Models
+namespace Project.Core.Abstractions.Models
 {
     public interface IModelBase
     {

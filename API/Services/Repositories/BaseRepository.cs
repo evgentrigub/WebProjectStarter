@@ -32,7 +32,7 @@ namespace API.Services.Repositories
                     return new Result<TEntity>(message: "Success!", isSuccess: true, data: entity);
                 }
 
-                return new Result<TEntity>(message: "Base Repository Create Error", isSuccess:false, data:null);
+                return new Result<TEntity>(message: "Base Repository Create Error", isSuccess: false, data: null);
             }
             catch (AppException e)
             {
@@ -45,10 +45,11 @@ namespace API.Services.Repositories
             try
             {
                 var entity = await Set.FindAsync(id);
-                if(entity == null) 
-                    return new Result<TEntity>(message:"Can not find entity with id:"+id, isSuccess:false, data:null);
+                if (entity == null)
+                    return new Result<TEntity>(message: "Can not find entity with id:" + id, isSuccess: false,
+                        data: null);
 
-                return new Result<TEntity>(message:"Success!", isSuccess:true, data:entity);
+                return new Result<TEntity>(message: "Success!", isSuccess: true, data: entity);
             }
             catch (AppException e)
             {
@@ -61,8 +62,8 @@ namespace API.Services.Repositories
             try
             {
                 var result = await FindById(id);
-                if(!result.IsSuccess)
-                    return new Result(result.Message, isSuccess:false);
+                if (!result.IsSuccess)
+                    return new Result(result.Message, false);
 
                 Set.Remove(result.Data);
                 return new Result("Delete successful", true);

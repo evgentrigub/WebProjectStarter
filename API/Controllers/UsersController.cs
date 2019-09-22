@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using AutoMapper;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Helpers;
@@ -8,6 +7,7 @@ using API.Models;
 using API.Models.Base;
 using API.Models.ViewModels;
 using API.Services.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +19,9 @@ namespace API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly IMapper _mapper;
 
-        private IUserService _userService;
-        private IMapper _mapper;
+        private readonly IUserService _userService;
 
         public UsersController(
             IUserService userService,
@@ -40,9 +40,9 @@ namespace API.Controllers
         /// <response code="400">If something wrong with authenticate</response>
         [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.Accepted)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int) HttpStatusCode.Accepted)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Authenticate([FromBody] UserDto userDto)
         {
             try
@@ -57,11 +57,10 @@ namespace API.Controllers
 
                 return Accepted(new Result<UserAuthenticateModel>(message: "Authenticate successful!", isSuccess: true,
                     data: user));
-
             }
             catch (AppException e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(new {message = e.Message});
             }
         }
 
@@ -73,9 +72,9 @@ namespace API.Controllers
         /// <response code="400">If username exist or password null</response>
         [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Register([FromBody] UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
@@ -90,7 +89,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(new {message = e.Message});
             }
         }
 
@@ -109,9 +108,9 @@ namespace API.Controllers
         /// <response code="200">Returns user</response>
         /// <response code="400">If username is empty</response>
         [HttpGet("{id}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(string id)
         {
             try
@@ -125,7 +124,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(new {message = e.Message});
             }
         }
 
@@ -137,10 +136,10 @@ namespace API.Controllers
         /// <response code="200">Updated successful</response>
         /// <response code="400">If error while updating</response>
         [HttpPut("{id}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public IActionResult Update(string id, [FromBody] UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
@@ -154,7 +153,7 @@ namespace API.Controllers
             }
             catch (AppException e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(new {message = e.Message});
             }
         }
 
@@ -165,10 +164,10 @@ namespace API.Controllers
         /// <response code="200">Returns registered user</response>
         /// <response code="400">If error while deleting</response>
         [HttpDelete("{id}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public IActionResult Delete(string id)
         {
             _userService.Delete(id);

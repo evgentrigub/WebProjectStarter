@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using API.Models.Base;
+﻿using API.Models.Base;
 
 namespace API.Models
 {
-    public class User: ModelBase
+    public class User : ModelBase
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
