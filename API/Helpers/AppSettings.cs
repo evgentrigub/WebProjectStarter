@@ -14,11 +14,6 @@ namespace API.Helpers
         public string Secret { get; set; }
     }
 
-    public class AppException : Exception
-    {
-        public AppException(string message) : base(message) { }
-    }
-
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()

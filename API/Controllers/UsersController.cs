@@ -1,74 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.Collections.Generic;
+using System.Net;
 using AutoMapper;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Helpers;
 using API.Models;
-using API.Models.Interfaces;
+using API.Models.Base;
 using API.Models.ViewModels;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Authorize]
-    [Route("[controller]/[action]")]
+    //[Authorize]
+    [Route("api/v1/[controller]/[action]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
 
         private IUserService _userService;
         private IMapper _mapper;
-        private AppSettings _appSettings;
 
         public UsersController(
             IUserService userService,
-            IMapper mapper,
-            IOptions<AppSettings> appSettings
-            )
+            IMapper mapper
+        )
         {
             _userService = userService;
             _mapper = mapper;
-            _appSettings = appSettings.Value;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        /// <response code="202">Returns authenticated user</response>
+        /// <response code="400">If something wrong with authenticate</response>
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Authenticate([FromBody] UserDto userDto)
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Authenticate([FromBody] UserDto userDto)
         {
             try
             {
-                var user = _userService.Authenticate(userDto.Username, userDto.Password);
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, user.Id.ToString())
-                    }),
-                    Expires = DateTime.UtcNow.AddDays(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                };
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var tokenToSend = tokenHandler.WriteToken(token);
+                var result = await _userService.Authenticate(userDto.Username, userDto.Password);
+                if (!result.IsSuccess)
+                    return NotFound(result.Message);
 
-                return Ok(new UserAuthenticateModel()
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Token = tokenToSend
-                });
+                var token = _userService.CreateToken(result.Data.Id);
+                var user = _mapper.Map<UserAuthenticateModel>(result.Data);
+                user.Token = token;
+
+                return Accepted(new Result<UserAuthenticateModel>(message: "Authenticate successful!", isSuccess: true,
+                    data: user));
+
             }
             catch (AppException e)
             {
@@ -76,16 +65,28 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        /// <response code="201">Returns registered user</response>
+        /// <response code="400">If username exist or password null</response>
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Register([FromBody] UserDto userDto)
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Register([FromBody] UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
 
             try
             {
-                _userService.Create(user, userDto.Password);
-                return Ok();
+                var result = await _userService.Create(user, userDto.Password);
+                if (!result.IsSuccess)
+                    return BadRequest(result.Message);
+
+                return Created("", result);
             }
             catch (AppException e)
             {
@@ -94,30 +95,33 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var users = _userService.GetAll();
+            var users = await _userService.GetAll().ToListAsync();
             var userViewModels = _mapper.Map<IList<UserViewModel>>(users);
             return Ok(userViewModels);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <response code="200">Returns user</response>
+        /// <response code="400">If username is empty</response>
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Get(string id)
         {
-            var user = _userService.GetById(id);
-            var userViewModel = _mapper.Map<UserViewModel>(user);
-            return Ok(userViewModel);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Update([FromBody]UserDto userDto)
-        {
-            var user = _mapper.Map<User>(userDto);
-
             try
             {
-                _userService.Update(user, userDto.Password);
-                return Ok();
+                var result = await _userService.FindById(id);
+                if (!result.IsSuccess)
+                    return BadRequest(result.Message);
+
+                var userViewModel = _mapper.Map<UserViewModel>(result.Data);
+                return Ok(userViewModel);
             }
             catch (AppException e)
             {
@@ -125,8 +129,47 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        /// <response code="200">Updated successful</response>
+        /// <response code="400">If error while updating</response>
+        [HttpPut("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public IActionResult Update(string id, [FromBody] UserDto userDto)
+        {
+            var user = _mapper.Map<User>(userDto);
+
+            try
+            {
+                var result = _userService.Update(id, user);
+                if (!result.IsSuccess)
+                    return BadRequest(result.Message);
+                return Ok(result);
+            }
+            catch (AppException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <response code="200">Returns registered user</response>
+        /// <response code="400">If error while deleting</response>
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public IActionResult Delete(string id)
         {
             _userService.Delete(id);
             return Ok();

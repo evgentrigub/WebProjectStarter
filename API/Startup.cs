@@ -1,8 +1,9 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
 using API.Helpers;
-using API.Models.Interfaces;
+using API.Models;
 using API.Services;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Project.Core.Abstractions.Services;
 
 namespace API
 {
@@ -50,13 +51,10 @@ namespace API
                 {
                     OnTokenValidated = context =>
                     {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
-                        if (user == null)
-                        {
-                            context.Fail("Unauthorized");
-                        }
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<IBaseRepository<User>>();
+                        var userId = context.Principal.Identity.Name;
+                        var user = userService.FindById(userId);
+                        if (user == null) context.Fail("Unauthorized");
 
                         return Task.CompletedTask;
                     }
