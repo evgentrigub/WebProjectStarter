@@ -1,10 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { User } from '../account/user';
-import { Subscription, Observable } from 'rxjs';
-import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
-import { map } from 'rxjs/operators';
+import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '../account/services/authentication.service';
+import { UserViewModel } from '../core/models/user';
+import { Subscription } from 'rxjs';
+import { AuthenticationService } from '../core/services/authentication.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -13,14 +11,10 @@ import { AuthenticationService } from '../account/services/authentication.servic
 })
 export class NavBarComponent implements OnDestroy {
   isShow: boolean;
-  currentUser: User;
+  currentUser: UserViewModel;
   currentUserSubscription: Subscription;
 
-  constructor(
-    private breakpointObserver: BreakpointObserver,
-    private router: Router,
-    private authenticationService: AuthenticationService
-  ) {
+  constructor(private router: Router, private authenticationService: AuthenticationService) {
     this.currentUserSubscription = this.authenticationService.currentUser.subscribe(user => {
       if (user) {
         this.isShow = true;

@@ -11,12 +11,12 @@ namespace API.Services.Interfaces
     public interface IUserService : IBaseRepository<User>
     {
         /// <summary>
-        ///     Authenticate user with username and password
+        ///     Authenticate user with email and password
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        Task<IResult<User>> Authenticate(string username, string password);
+        Task<IResult<User>> Authenticate(string email, string password);
 
         /// <summary>
         ///     Get users with table params: page number and page size

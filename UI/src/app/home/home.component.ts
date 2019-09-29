@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthenticationService } from '../account/services/authentication.service';
-import { UserService } from '../account/services/user.service';
-import { User } from '../account/user';
 import { first } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { UserViewModel } from '../core/models/user';
+import { AuthenticationService } from '../core/services/authentication.service';
+import { UserService } from '../core/services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  currentUser: User;
+  currentUser: UserViewModel;
   users = [];
 
   constructor(private authenticationService: AuthenticationService, private userService: UserService, private router: Router) {
@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit {
     this.loadAllUsers();
   }
 
-  deleteUser(id: number) {
+  deleteUser(id: string) {
     this.userService
       .delete(id)
       .pipe(first())

@@ -34,15 +34,15 @@ namespace API.Services
         }
 
         /// <inheritdoc />
-        public async Task<IResult<User>> Authenticate(string username, string password)
+        public async Task<IResult<User>> Authenticate(string email, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                return new Result<User>(message: "Username or password is empty", isSuccess: false, data: null);
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                return new Result<User>(message: "Email or password is empty", isSuccess: false, data: null);
 
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.Username == username);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == email);
 
             if (user == null || !VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-                return new Result<User>(message: "Username or password is incorrect. Try login again.",
+                return new Result<User>(message: "Email or password is incorrect. Try sign in again.",
                     isSuccess: false, data: null);
 
             return new Result<User>(message: "Authenticate successful!", isSuccess: true, data: user);
@@ -54,18 +54,19 @@ namespace API.Services
             if (string.IsNullOrWhiteSpace(password))
                 return new Result("Password is empty!", false);
 
-            if (_context.Users.Any(x => x.Username == user.Username))
-                return new Result("Username has already created!", false);
+            if (_context.Users.Any(x => x.Email == user.Email))
+                return new Result("Email has already registered!", false);
 
             CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
             if (passwordHash == null || passwordSalt == null)
                 throw new AppException("Can't create password hash");
+            user.Username = user.Email;
 
             user.PasswordSalt = passwordSalt;
             user.PasswordHash = passwordHash;
 
-            user.QuickSearchName = user.FirstName.ToUpperInvariant() + user.LastName.ToUpperInvariant() +
-                                   user.FirstName.ToUpperInvariant();
+            user.QuickSearch = user.Username.ToUpperInvariant() + user.Email.ToUpperInvariant() +
+                                   user.Username.ToUpperInvariant();
 
             try
             {
@@ -103,16 +104,18 @@ namespace API.Services
             if (currentUser == null)
                 return new Result("User not found", false);
 
-            if (user.Username != currentUser.Username && _context.Users.Any(x => x.Username == user.Username))
-                return new Result("Username has already existed. Username:", false);
+            if (user.Email!= currentUser.Email && _context.Users.Any(x => x.Email == user.Email))
+                return new Result("Email has already registered.", false);
 
-            currentUser.FirstName = user.FirstName;
-            currentUser.LastName = user.LastName;
+            if (user.Username != currentUser.Username && _context.Users.Any(x => x.Username == user.Username))
+                return new Result("Username has already existed.", false);
+
+            currentUser.Email = user.Email;
             currentUser.Username = user.Username;
 
-            currentUser.QuickSearchName =
-                user.FirstName.ToUpperInvariant() + user.LastName.ToUpperInvariant() +
-                user.FirstName.ToUpperInvariant();
+            currentUser.QuickSearch =
+                user.Username.ToUpperInvariant() + user.Email.ToUpperInvariant() +
+                user.Username.ToUpperInvariant();
 
             //if (!string.IsNullOrWhiteSpace(password))
             //{

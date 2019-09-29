@@ -47,7 +47,7 @@ namespace API.Controllers
         {
             try
             {
-                var result = await _userService.Authenticate(userDto.Username, userDto.Password);
+                var result = await _userService.Authenticate(userDto.Email, userDto.Password);
                 if (!result.IsSuccess)
                     return NotFound(result.Message);
 

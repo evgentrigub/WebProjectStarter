@@ -1,8 +1,0 @@
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\bin\Debug\netstandard2.0\Project.Core.deps.json
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\bin\Debug\netstandard2.0\Project.Core.dll
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\bin\Debug\netstandard2.0\Project.Core.pdb
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\obj\Debug\netstandard2.0\Project.Core.csproj.CoreCompileInputs.cache
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\obj\Debug\netstandard2.0\Project.Core.AssemblyInfoInputs.cache
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\obj\Debug\netstandard2.0\Project.Core.AssemblyInfo.cs
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\obj\Debug\netstandard2.0\Project.Core.dll
-C:\Users\evgen\Desktop\Programming\Projects\WebProjectStarter\API.Core\obj\Debug\netstandard2.0\Project.Core.pdb

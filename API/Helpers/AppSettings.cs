@@ -18,6 +18,8 @@ namespace API.Helpers
             CreateMap<UserDto, User>();
             CreateMap<User, UserViewModel>();
             CreateMap<UserViewModel, User>();
+            CreateMap<UserAuthenticateModel, User>();
+            CreateMap<User, UserAuthenticateModel>();
         }
     }
 }

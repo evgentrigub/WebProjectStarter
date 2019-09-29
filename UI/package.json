@@ -1,6 +1,6 @@
 {
-  "name": "PortalUI",
-  "version": "0.0.0",
+  "name": "UniversalWebStarter",
+  "version": "1.5.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,7 +9,8 @@
     "format:check": "prettier --config ./.prettierrc.json --list-different \"src/{app,environments,assets}/**/*{.ts,.js,.json,.css,.scss,.html}\"",
     "format:all": "prettier --config ./.prettierrc.json --write \"src/{app,environments,assets}/**/*{.ts,.js,.json,.css,.scss,.html}\"",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "codefix": "npm run lint && npm run format:all"
   },
   "private": true,
   "dependencies": {

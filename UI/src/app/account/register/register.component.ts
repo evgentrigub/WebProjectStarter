@@ -1,80 +1,81 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '../services/authentication.service';
-import { UserService } from '../services/user.service';
-import { first } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
+import { first, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material';
+import { AuthenticationService } from 'src/app/core/services/authentication.service';
+import { UserDTO } from 'src/app/core/models/user';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent implements OnInit {
-  hide = true;
-  valueFirstName = '';
-  valueLastname = '';
-  valueLogin = '';
+export class RegisterComponent {
+  readonly registerForm: FormGroup;
+  readonly repeatPasswordControl: FormControl;
 
-  registerForm: FormGroup;
-  loading = false;
-  submitted = false;
+  hidePassword = true;
+  isLoading = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private authenticationService: AuthenticationService,
-    private userService: UserService,
     private snackbar: MatSnackBar
   ) {
     if (this.authenticationService.currentUserValue) {
       this.router.navigate(['/']);
     }
-  }
-
-  ngOnInit() {
     this.registerForm = this.formBuilder.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+
+    // TO-DO дописать валидатор на проверку повторного контрола
+    this.repeatPasswordControl = this.formBuilder.control('', [Validators.required]);
   }
 
-  get f() {
-    return this.registerForm.controls;
+  /**
+   * Check validation for registration
+   */
+  canSubmit(): boolean {
+    return this.registerForm.valid;
   }
 
-  onSubmit() {
-    this.submitted = true;
-    if (this.registerForm.invalid) {
+  /**
+   * Sumbit the register form for registration
+   */
+  onSubmit(): void {
+    if (!this.canSubmit()) {
       return;
     }
 
-    this.loading = true;
-    // setTimeout(() => {
-    this.userService
-      .register(this.registerForm.value)
-      .pipe(first())
-      .subscribe(
-        data => {
-          this.router.navigate(['/login']);
-          this.showMessage('Регистрация успешна');
-          this.loading = false;
-        },
-        error => {
-          this.loading = false;
-          this.showErrorMessage(error);
-        }
-      );
-    // }, 1500);
+    this.isLoading = true;
+    const user = this.registerForm.value as UserDTO;
+    setTimeout(() => {
+      this.authenticationService
+        .register(user)
+        .pipe(
+          first(),
+          switchMap(_ => {
+            return this.authenticationService.login(user.email, user.password);
+          })
+        )
+        .subscribe(
+          _ => {
+            this.router.navigate(['/home']);
+            this.showMessage('С возвращением!');
+            this.isLoading = false;
+          },
+          error => {
+            this.isLoading = false;
+            this.showMessage(error);
+          }
+        );
+    }, 1500);
   }
 
-  private showErrorMessage(message: HttpErrorResponse) {
-    this.snackbar.open(message.error.message, 'OK', { duration: 6000 });
-  }
   private showMessage(message: any) {
     this.snackbar.open(message, 'OK', { duration: 3000 });
   }

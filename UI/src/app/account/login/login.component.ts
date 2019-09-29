@@ -1,29 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, MinLengthValidator } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthenticationService } from '../services/authentication.service';
-import { first, retry, timeout } from 'rxjs/operators';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { first } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material';
-import { ok } from 'assert';
-import { HttpErrorResponse } from '@angular/common/http';
+import { AuthenticationService } from 'src/app/core/services/authentication.service';
+
+interface AuthModel {
+  email: string;
+  password: string;
+}
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent implements OnInit {
-  hide = true;
-  value = '';
-
-  loginForm: FormGroup;
-  loading = false;
-  submitted = false;
-  returnUrl: string;
+export class LoginComponent {
+  readonly loginForm: FormGroup;
+  isLoading = false;
+  hidePassword = true;
 
   constructor(
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService,
     private snackbar: MatSnackBar
@@ -31,62 +29,50 @@ export class LoginComponent implements OnInit {
     if (this.authenticationService.currentUserValue) {
       this.router.navigate(['/home']);
     }
-  }
-
-  ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
-
-    this.returnUrl = this.route.snapshot.queryParams.returnUrl || 'home';
   }
 
-  get f() {
-    return this.loginForm.controls;
-  }
-  // TO-DO ошибки добавить в разметку позже
-  getErrorLogin() {
-    return this.loginForm.get('username').hasError('required') ? 'Логин не может быть пустым' : '';
-  }
-  getErrorPassword() {
-    return this.loginForm.get('password').hasError('required') ? 'Пароль не может быть пустым' : '';
+  /**
+   * Check validation for authentication
+   */
+  canSubmit(): boolean {
+    return this.loginForm.valid;
   }
 
-  onSubmit() {
-    this.submitted = true;
+  /**
+   * Sumbit the login form for authentication
+   */
+  onSubmit(): void {
+    if (!this.canSubmit()) {
+      return;
+    }
 
     if (this.loginForm.invalid) {
       return;
     }
+    const user = this.loginForm.value as AuthModel;
 
-    this.loading = true;
-    // setTimeout(() => {
+    this.isLoading = true;
     this.authenticationService
-      .login(this.f.username.value, this.f.password.value)
+      .login(user.email, user.password)
       .pipe(first())
       .subscribe(
-        data => {
-          this.loading = false;
-          this.router.navigate([this.returnUrl]);
-          this.showMessage('Вход успешно выполнен');
+        _ => {
+          this.isLoading = false;
+          this.router.navigate(['/home']);
+          this.showMessage('Log in success!');
         },
         error => {
-          this.showErrorMessage(error);
-          this.loading = false;
+          this.isLoading = false;
+          this.showMessage(error);
         }
       );
-    // }, 1500);
   }
 
-  forgetPassword() {
-    this.showMessage('Функция пока не доступна');
-  }
-
-  private showErrorMessage(message: HttpErrorResponse) {
-    this.snackbar.open(message.error.message, 'OK', { duration: 6000 });
-  }
   private showMessage(message: any) {
-    this.snackbar.open(message, 'OK', { duration: 3000 });
+    this.snackbar.open(message, 'OK', { duration: 5000 });
   }
 }

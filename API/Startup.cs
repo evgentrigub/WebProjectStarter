@@ -4,6 +4,7 @@ using API.Helpers;
 using API.Models;
 using API.Services;
 using API.Services.Interfaces;
+using API.Services.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -73,6 +74,7 @@ namespace API
             });
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBaseRepository<User>, BaseRepository<User>>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",

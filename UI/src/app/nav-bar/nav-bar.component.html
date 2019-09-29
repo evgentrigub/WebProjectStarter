@@ -3,4 +3,9 @@
   <ng-container *ngIf="isShow">
     <button mat-button (click)="logout()">Log out</button>
   </ng-container>
+  <ng-container *ngIf="!isShow">
+    <button mat-button routerLink="/about">About</button>
+    <button mat-button routerLink="/login">Sign In</button>
+    <button mat-button routerLink="/register">Sign Up</button>
+  </ng-container>
 </mat-toolbar>

@@ -3,7 +3,8 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/c
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { AuthenticationService } from './services/authentication.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { CustomErrorResponse } from '../models/custom-error-response';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -17,8 +18,19 @@ export class ErrorInterceptor implements HttpInterceptor {
           location.reload(true);
         }
 
-        const error = err.error.message || err.statusText;
-        return throwError(error);
+        // back-end is not allowed
+        if (err.status === 0) {
+          return throwError(new CustomErrorResponse('Connection to server failed.', 0));
+        }
+
+        // back-end throw expected error
+        const message = err.error.message;
+        if (message) {
+          return throwError(new CustomErrorResponse(message, err.status));
+        }
+
+        // back-end throw unexpected error
+        return throwError(new CustomErrorResponse(err.error, err.status));
       })
     );
   }
